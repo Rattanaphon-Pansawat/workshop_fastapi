@@ -47,7 +47,7 @@ items: dict[int, Item] = {
 id = 0
 
 # [POST] Create an Item
-@app.post("/items/", response_model=Item)
+@app.post("/items/", response_model=Item, tags=["items"])
 def create_item(item: ItemDto):
     global id
     id += 1
@@ -64,7 +64,7 @@ def create_item(item: ItemDto):
 def get_all_items():
     return [item for item in items.values()]
 
-@app.get("/items/{item_id}", response_model=Item|dict)
+@app.get("/items/{item_id}", response_model=Item|dict, tags=["items"])
 def get_one_items(item_id: int):
     if item_id not in items:
         return {"message": "item not found"}
