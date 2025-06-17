@@ -15,6 +15,7 @@ async def get_todos():
     ]
 
 counter = 0
+
 @app.get("/counter")
 async def get_counter():
     global counter
@@ -32,10 +33,20 @@ class ItemDto(BaseModel):
     description: str | None = None
     price: float
 
-items: dict[int, Item] = {}
+items: dict[int, Item] = {
+    1 : Item(item_id=1, 
+             name="first item",
+             price=10),
+    2 : Item(item_id=1, 
+             name="second item",
+             price=20),
+    3 : Item(item_id=1, 
+             name="third item",
+             price=30),
+}
 id = 0
 
-# Create an Item
+# [POST] Create an Item
 @app.post("/items/", response_model=Item)
 def create_item(item: ItemDto):
     global id
@@ -47,3 +58,30 @@ def create_item(item: ItemDto):
                      price=item.price
                      )
     return items[id]
+
+# [GET] Get Items
+@app.get("/items", response_model=list[Item], tags=["items"])
+def get_all_items():
+    return [item for item in items.values()]
+
+@app.get("/items/{item_id}", response_model=Item|dict)
+def get_one_items(item_id: int):
+    if item_id not in items:
+        return {"message": "item not found"}
+    return items[item_id]
+
+# [PUT] Put Items
+@app.put("/items/{item_id}", response_model=Item | dict, tags=["items"])
+def update_item(item_id: int, item: ItemDto):
+    if item_id not in items:
+        return {"message": "item not found"}
+    items[item_id] = Item(item_id=item_id,name=item.name,description=item.description,price=item.price)
+    return items[item_id]
+
+#  [Delete] Delete Items
+@app.delete("/items/{item_id}", response_model=dict, tags=["items"])
+def delete_item(item_id: int):
+    if item_id not in items:
+        return {"message": "item not found"}
+    del items[item_id]
+    return {"message": "delete success"}
